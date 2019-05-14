@@ -1,0 +1,20 @@
+<svg [attr.x]="col * cellSize" y="0">
+  <svg:g (click)="drop()" class="column">
+  <svg:g board-checker   
+      *ngFor="let checker of checkers"
+      [checker]="checker"
+      [cellSize]="cellSize"
+      [rowCount]="rowCount"
+      [checkerRadius]="checkerRadius"
+      [status]="status"
+    />
+    <svg:rect
+      [attr.class]="status"
+      [attr.width]="cellSize"
+      [attr.height]="boardHeight"
+      [attr.fill]="color"
+      [attr.mask]="mask"
+      [attr.fill-opacity]="opacity"
+      />
+  </svg:g>
+</svg>

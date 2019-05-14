@@ -1,0 +1,21 @@
+<div class="container">
+    <p class="lead text-center" *ngIf="!winner"><b [style.color]="playerColor">{{ playerColor | uppercase }}</b> Turn</p>
+    <div class="row">
+        <div class="col-10 offset-1 game__board">
+            <game-board
+                [(checkers)]="checkers"
+                [rowCount]="rowCount"
+                [colCount]="colCount"
+                [status]="status"
+                (drop)="drop($event)"
+            >
+            </game-board>
+        </div>
+    </div>
+    <ng-template [ngIf]="winner">
+        <hr>
+        <h3 class="text-center"><b [style.color]="winner?.color">{{ (winner?.color | uppercase)}}</b> Wins</h3>
+        <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
+    </ng-template>
+
+</div>

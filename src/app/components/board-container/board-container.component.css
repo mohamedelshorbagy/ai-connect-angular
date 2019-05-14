@@ -1,0 +1,15 @@
+p {
+    font-size: 22px;
+    margin-top: 0.5rem;
+}
+
+.game__board {
+    margin-top: 0.25rem;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-center {
+    margin-left: 50%;
+    transform: translateX(-50%);
+}

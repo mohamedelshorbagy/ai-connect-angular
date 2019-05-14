@@ -1,0 +1,7 @@
+.column {
+    cursor: pointer;
+}
+
+.column rect.play:hover {
+    fill-opacity: 0.75;
+}

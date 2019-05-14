@@ -1,0 +1,29 @@
+<svg [attr.viewBox]="'0 0 ' + boardWidth + ' ' + boardHeight"
+xmlns="http://www.w3.org/2000/svg"
+class="game-board" width="350px">
+<svg:defs>
+  <svg:pattern [attr.id]="patternId" patternUnits="userSpaceOnUse" [attr.width]="cellSize" [attr.height]="cellSize">
+    <svg:circle [attr.cx]="cellSize / 2" [attr.cy]="cellSize / 2" [attr.r]="checkerRadius" fill="black"></svg:circle>
+  </svg:pattern>
+  <svg:mask [attr.id]="maskId">
+    <svg:rect [attr.width]="cellSize" [attr.height]="boardHeight" fill="white"></svg:rect>
+    <svg:rect [attr.width]="cellSize" [attr.height]="boardHeight" [attr.fill]="pattern"></svg:rect>
+  </svg:mask>
+</svg:defs>
+
+
+<svg:g board-column 
+  *ngFor="let col of cols"
+  [checkers]="checkerStack(col)"
+  [col]="col"
+  [color]="'cadetblue'"
+  [cellSize]="cellSize"
+  [checkerRadius]="checkerRadius"
+  [boardHeight]="boardHeight"
+  [rowCount]="rowCount"
+  [mask]="mask"
+  (drop)="drop($event)" 
+  [status]="status"
+/>
+
+</svg>
