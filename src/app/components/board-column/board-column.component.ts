@@ -44,6 +44,7 @@ export class BoardColumnComponent implements OnInit, OnChanges {
       this.dropOutput.emit({ row, col });
     } else {
       console.log('cannot drop', { row, col });
+      // this.dropOutput.emit({ row, col, drop: false })
     }
   }
 }

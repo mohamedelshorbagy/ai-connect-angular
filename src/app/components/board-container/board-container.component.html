@@ -12,10 +12,15 @@
             </game-board>
         </div>
     </div>
+
     <ng-template [ngIf]="winner">
         <hr>
         <h3 class="text-center"><b [style.color]="winner?.color">{{ (winner?.color | uppercase)}}</b> Wins</h3>
-        <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
     </ng-template>
+    <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
+    <p class="lead text-center">Iterations: {{ iterations }}</p>
+    <p class="lead text-center">Column: {{ scoreState[0] }}</p>
+    <p class="lead text-center">Score: {{ scoreState[1] }}</p>
+    <p class="lead text-center">Same Score: {{ sameScore }}</p>
 
 </div>

@@ -7,6 +7,7 @@ export const GREEN = 'green';
 export const EMPTY = 'empty';
 export const OVER = 'over';
 export const PLAY = 'play';
+export const Winner = { player1: 1, player2: 2  } 
 
 export const min = num => Math.max(num - 3, 0);
 export const max = (num, max) => Math.min(num + 3, max);
