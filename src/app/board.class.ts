@@ -20,23 +20,21 @@ export class Board {
     }
 
     getAvailableRow(column: number) {
-        // Check from the bottom up for an empty space
         for (var i = this.gameState.rowCount - 1; i >= 0; i--) {
-            if (this.fields[i][column] == 0) {
+            if (this.fields[i][column] === 0) {
                 return i;
             }
         }
-        // Move is invalid
         return -1;
     }
 
-    placePiece(column: number, player: number) {
-        if (this.fields[0][column] == null && column >= 0 && column < this.gameState.colCount) {
+    placePiece(column: number) {
+        if (this.fields[0][column] == 0 && column >= 0 && column < this.gameState.colCount) {
             // Bottom to top
             for (var y = this.gameState.rowCount - 1; y >= 0; y--) {
-                if (this.fields[y][column] == null) {
-                    this.fields[y][column] = this.player; // Set current player coin
-                    break; // Break from loop after inserting
+                if (this.fields[y][column] === 0) {
+                    this.fields[y][column] = this.player;
+                    break;
                 }
             }
             this.player = this.player === Winner.player1 ? Winner.player2 : Winner.player1;
@@ -50,22 +48,18 @@ export class Board {
         var human_points = 0;
         var computer_points = 0;
 
-        // Save winning positions to arrays for later usage
 
-        // Determine score through amount of available chips
         for (var i = 0; i < 4; i++) {
-            if (this.fields[row][column] == 0) {
-                human_points++; // Add for each human chip
+            if (this.fields[row][column] == 2) {
+                human_points++;
             } else if (this.fields[row][column] == 1) {
-                computer_points++; // Add for each computer chip
+                computer_points++;
             }
 
-            // Moving through our board
             row += delta_y;
             column += delta_x;
         }
 
-        // Marking winning/returning score
         if (human_points == 4) {
             // Computer won (100000)
             return -this.gameState.score;
@@ -189,7 +183,7 @@ export class Board {
 
     isFull() {
         for (var i = 0; i < this.gameState.colCount; i++) {
-            if (this.fields[0][i] == null) {
+            if (this.fields[0][i] === 0) {
                 return false;
             }
         }
@@ -197,7 +191,7 @@ export class Board {
     }
 
 
-    copy() {
+    copy(): Board {
         var new_board = new Array();
         for (var i = 0; i < this.fields.length; i++) {
             new_board.push(this.fields[i].slice());

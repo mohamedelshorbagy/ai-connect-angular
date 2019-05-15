@@ -1,5 +1,9 @@
 <div class="container">
-    <p class="lead text-center" *ngIf="!winner"><b [style.color]="playerColor">{{ playerColor | uppercase }}</b> Turn</p>
+    <p class="lead text-center" *ngIf="!winner">
+            <b [style.color]="playerColor">
+                {{ playerColor | uppercase }}
+            </b> Turn
+        </p>
     <div class="row">
         <div class="col-10 offset-1 game__board">
             <game-board
@@ -18,9 +22,11 @@
         <h3 class="text-center"><b [style.color]="winner?.color">{{ (winner?.color | uppercase)}}</b> Wins</h3>
     </ng-template>
     <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
-    <p class="lead text-center">Iterations: {{ iterations }}</p>
-    <p class="lead text-center">Column: {{ scoreState[0] }}</p>
-    <p class="lead text-center">Score: {{ scoreState[1] }}</p>
-    <p class="lead text-center">Same Score: {{ sameScore }}</p>
+    <ng-template [ngIf]="!winner">
+        <p class="lead text-center">Iterations: {{ iterations }}</p>
+        <p class="lead text-center">Column: {{ scoreState[0] ? scoreState[0] : '??' }}</p>
+        <p class="lead text-center">Score: {{ scoreState[1] ? scoreState[1] : '??' }}</p>
+        <p class="lead text-center">Same Score: {{ sameScore }}</p>
+    </ng-template>
 
 </div>

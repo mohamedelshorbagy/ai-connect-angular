@@ -15,8 +15,8 @@ export class BoardCheckerComponent implements OnInit, OnChanges {
   opacity: number;
   isWinner: boolean;
   colorHexes = {
-    red: '#FC7E69',
-    black: '#254689',
+    red: 'rgb(231,70,69)',
+    black: '#222',
     green: 'green'
   }
   color: string;

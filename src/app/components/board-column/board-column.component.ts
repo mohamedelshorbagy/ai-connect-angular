@@ -39,12 +39,11 @@ export class BoardColumnComponent implements OnInit, OnChanges {
     const row = this.nextOpenRow;
 
     if (row < this.rowCount) {
-      console.log('dropping', { row, col });
+      console.log('Valid', { row, col });
       // emit Value
       this.dropOutput.emit({ row, col });
     } else {
-      console.log('cannot drop', { row, col });
-      // this.dropOutput.emit({ row, col, drop: false })
+      console.log('Not Valid', { row, col });
     }
   }
 }
