@@ -13,6 +13,7 @@ export class GameBoardComponent implements OnInit {
   @Input() colCount;
   @Input() status;
   @Output('drop') dropOutput = new EventEmitter();
+  @Input() disableClick: boolean;
   patternId: string = 'cell-pattern';
   maskId: string = 'cell-mask';
   cellSize: number = 100;

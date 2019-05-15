@@ -1,18 +1,13 @@
 <div class="container">
     <p class="lead text-center" *ngIf="!winner">
-            <b [style.color]="playerColor">
-                {{ playerColor | uppercase }}
-            </b> Turn
-        </p>
+        <b [style.color]="playerColor">
+            {{ playerColor | uppercase }}
+        </b> Turn
+    </p>
     <div class="row">
         <div class="col-10 offset-1 game__board">
-            <game-board
-                [(checkers)]="checkers"
-                [rowCount]="rowCount"
-                [colCount]="colCount"
-                [status]="status"
-                (drop)="drop($event)"
-            >
+            <game-board [checkers]="checkers" [rowCount]="rowCount" [colCount]="colCount" [status]="status"
+                [disableClick]="disableClick" (drop)="drop($event)">
             </game-board>
         </div>
     </div>
@@ -21,7 +16,18 @@
         <hr>
         <h3 class="text-center"><b [style.color]="winner?.color">{{ (winner?.color | uppercase)}}</b> Wins</h3>
     </ng-template>
-    <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
+    <!-- <div class="row btn-group"> -->
+        <!-- <div class=""></div> -->
+        <!-- <div class="col-4">
+            <select (change)="depth = $event" class="form-control">
+                <option *ngFor="let value of depths" [value]="value" [selected]="value === depth">{{ value }}</option>
+            </select>
+        </div> -->
+        <div class="btn-group">
+            <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
+            <button class="btn btn-success btn-center" (click)="enableAItoPlaywithHimSelf()">AI Only Plays</button>
+        </div>
+    <!-- </div> -->
     <ng-template [ngIf]="!winner">
         <p class="lead text-center">Iterations: {{ iterations }}</p>
         <p class="lead text-center">Column: {{ scoreState[0] ? scoreState[0] : '??' }}</p>

@@ -17,6 +17,7 @@ export class BoardColumnComponent implements OnInit, OnChanges {
   @Input() rowCount;
   @Input() mask;
   @Input() status;
+  @Input() disableClick: boolean;
   opacity: number;
   @Output('drop') dropOutput = new EventEmitter();
   nextOpenRow: any;
@@ -25,7 +26,6 @@ export class BoardColumnComponent implements OnInit, OnChanges {
   ngOnChanges() {
     this.nextOpenRow = Math.max(...Object.values(this.checkers).map((c: any) => c.row).concat(-1)) + 1;
     this.opacity = (this.status === OVER) ? 0.2 : 1.0;
-
   }
 
   ngOnInit() {
@@ -35,6 +35,9 @@ export class BoardColumnComponent implements OnInit, OnChanges {
 
 
   drop() {
+    // In case of AI Playing with Each Other
+    if (this.disableClick) return;
+
     const col = this.col;
     const row = this.nextOpenRow;
 

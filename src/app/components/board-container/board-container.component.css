@@ -9,7 +9,18 @@ p {
     justify-content: center;
 }
 
-.btn-center {
+/* .row.actions {
+    margin-left: 50%;
+    transform: translateX(-50%);
+} */
+
+
+.btn-group {
     margin-left: 50%;
     transform: translateX(-50%);
 }
+
+/* .btn-center {
+    margin-left: 50%;
+    transform: translateX(-50%);
+} */

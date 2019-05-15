@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RED, BLACK, key, EMPTY, OVER, min, max, PLAY, Winner } from '../../helper';
-import { State } from '../../state.class';
-import { Board, IGame } from '../../board.class'
+import { Board, IGame } from '../../board.class';
+import { Observable } from 'rxjs'
+import { delay } from 'rxjs/operators'
 @Component({
   selector: 'board-container',
   templateUrl: './board-container.component.html',
@@ -23,15 +24,37 @@ export class BoardContainerComponent implements OnInit {
   sameScore: number = 0;
   score: number = 100000;
   depth: number = 4;
-  scoreState: [number, number] = [null, null]
-  constructor() { }
+  scoreState: [number, number] = [null, null];
+  delayTime: number = 100;
+  disableClick: boolean = false;
+  depths: number[] = [4, 5, 6, 7];
+  constructor(
+  ) { }
 
   ngOnInit() {
     this.evaluatePlayerState();
     this.createBoard();
 
-    // let score = this.getScore({ board: this.board, rowCount: this.rowCount, colCount: this.colCount, gScore: this.score });
-    // console.log('score', score);
+  }
+
+
+  enableAItoPlaywithHimSelf() {
+    this.reset();
+    this.delayTime = 500;
+    this.disableClick = true;
+    this.aIMoveOnBoard(this.delayTime);
+  }
+
+
+  aIMoveOnBoard(delayTime = 100) {
+    let nextMoveDelayed$ = this.aiPlays(delayTime);
+    this.isLocked = true;
+    nextMoveDelayed$.subscribe(([colVal, scoreVal]) => {
+      this.isLocked = false;
+      this.scoreState = [colVal, scoreVal];
+      this.placePieceByAI(colVal);
+      this.evaluatePlayerState();
+    })
   }
 
 
@@ -57,7 +80,6 @@ export class BoardContainerComponent implements OnInit {
     }
     this.board = new Board(board, this.playerState, gameState);
 
-    // console.log('Board Creation', this.board);
   }
 
   updateBoard({ col }) {
@@ -66,37 +88,48 @@ export class BoardContainerComponent implements OnInit {
   }
 
   toggleColor() {
-    if (this.playerColor === RED) {
-      this.playerColor = BLACK;
-      // Go AI
-      /**
-       * Finite State
-       * 1. Get Board Score
-       * 2. Get AI_Move
-       *
-       */
-      let boardScore = this.board.score();
-      if (boardScore != this.score && boardScore != -this.score && !this.board.isFull()) {
-        let nextMove: [number | any, number] = (<any>this.maximizePlay(this.board, this.depth));
-        console.log('nextMove', nextMove);
-        this.scoreState = nextMove;
-        // Place into the Board
-        // Place in the UI
-        // Find row to fill in
-        this.placePieceByAI(nextMove[0]);
-
+    if (!this.winner) {
+      if (this.playerColor === RED) {
+        this.playerColor = BLACK;
+        this.aIMoveOnBoard();
+      } else {
+        this.playerColor = RED;
+        if (this.disableClick) {
+          this.aIMoveOnBoard();
+        }
       }
-
-
-    } else {
-      this.playerColor = RED;
     }
-    this.evaluatePlayerState();
+  }
+
+
+  aiPlays(time = 100) {
+    /**
+     * Finite State
+     * 1. Get Board Score
+     * 2. Get AI_Move
+     * 3. Delay it by some amount of time
+     *
+     */
+    let boardScore = this.board.score();
+    if (boardScore != this.score && boardScore != -this.score && !this.board.isFull()) {
+      // let nextMove: [number | any, number] = (<any>this.maximizePlay(this.board, this.depth));
+      let nextMove$ = new Observable((observer) => {
+        let nextMove: [number | any, number] = (<any>this.maximizePlay(this.board, this.depth));
+        observer.next(nextMove);
+        observer.complete();
+      });
+
+      return nextMove$.pipe(
+        delay(time)
+      );
+    }
   }
 
   setChecker({ row, col }, attrs = {}) {
     const checker = this.getChecker({ row, col });
-    this.checkers[key({ row, col })] = { ...checker, ...attrs };
+    let checkers = Object.assign({}, this.checkers); // Make a new Copy
+    checkers[key({ row, col })] = { ...checker, ...attrs };
+    this.checkers = checkers;
     this.updateBoard({ col });
     console.log(this.checkers);
   }
@@ -106,6 +139,7 @@ export class BoardContainerComponent implements OnInit {
   drop({ col, row }) {
     if (this.isLocked) return;
 
+    console.log('Drop Triggered', this.isLocked, this.playerState);
     // this.isLocked = true;
     const color = this.playerColor;
 
@@ -214,9 +248,12 @@ export class BoardContainerComponent implements OnInit {
   reset() {
     this.winner = undefined;
     this.isLocked = false;
+    this.disableClick = false;
     this.status = PLAY;
     this.checkers = {};
     this.board = undefined;
+    this.playerColor = RED;
+    this.playerState = Winner.player2;
     this.evaluatePlayerState();
     this.createBoard();
     this.iterations = 0;
@@ -230,6 +267,7 @@ export class BoardContainerComponent implements OnInit {
       let row = this.board.getAvailableRow(col);
       if (~row) {
         row = this.rowCount - row - 1; // to be converted in the Board
+        console.log('From AI');
         this.drop({ col, row });
       }
     }
