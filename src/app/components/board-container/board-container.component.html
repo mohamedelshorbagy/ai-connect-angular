@@ -17,18 +17,19 @@
         <h3 class="text-center"><b [style.color]="winner?.color">{{ (winner?.color | uppercase)}}</b> Wins</h3>
     </ng-template>
     <!-- <div class="row btn-group"> -->
-        <!-- <div class=""></div> -->
-        <!-- <div class="col-4">
+    <!-- <div class=""></div> -->
+    <!-- <div class="col-4">
             <select (change)="depth = $event" class="form-control">
                 <option *ngFor="let value of depths" [value]="value" [selected]="value === depth">{{ value }}</option>
             </select>
         </div> -->
-        <div class="btn-group">
-            <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
-            <button class="btn btn-success btn-center" (click)="enableAItoPlaywithHimSelf()">AI Only Plays</button>
-        </div>
+    <div class="btn-group">
+        <button class="btn btn-primary btn-center" (click)="reset()">Reset</button>
+        <button class="btn btn-success btn-center" (click)="enableAItoPlaywithHimSelf()">AI Only Plays</button>
+    </div>
     <!-- </div> -->
     <ng-template [ngIf]="!winner">
+        <p class="lead text-center">Depth: {{ depth }}</p>
         <p class="lead text-center">Iterations: {{ iterations }}</p>
         <p class="lead text-center">Column: {{ scoreState[0] ? scoreState[0] : '??' }}</p>
         <p class="lead text-center">Score: {{ scoreState[1] ? scoreState[1] : '??' }}</p>
