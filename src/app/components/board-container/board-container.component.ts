@@ -42,7 +42,9 @@ export class BoardContainerComponent implements OnInit {
     this.reset();
     this.delayTime = 500;
     this.disableClick = true;
-    this.aIMoveOnBoard(this.delayTime);
+    let randCol = Math.floor(Math.random() * this.rowCount);
+    this.drop({ col: randCol, row: 0 });
+    // this.aIMoveOnBoard(this.delayTime);
   }
 
 
