@@ -1,10 +1,17 @@
 import { Winner } from './helper'
+/**
+ * @interface IGame
+ * @description can be used in IGame for gameState in the Board Class
+ */
 export interface IGame {
     rowCount: number,
     colCount: number,
     score: number
 }
-
+/**
+ * @class Board
+ * @classdesc for make a resuable Board so it can be used in many places
+ */
 export class Board {
     fields: Array<Array<any>>;
     player: number;
@@ -14,11 +21,11 @@ export class Board {
         this.player = player;
         this.gameState = gameState;
     }
-
-    isValidMove(column: number) {
-        return this.fields[0][column] === 0;
-    }
-
+    /**
+     * @function getAvailableRow
+     * @description get available row to be used in placement of AI
+     * @param {Number} column 
+     */
     getAvailableRow(column: number) {
         for (var i = this.gameState.rowCount - 1; i >= 0; i--) {
             if (this.fields[i][column] === 0) {
@@ -28,6 +35,11 @@ export class Board {
         return -1;
     }
 
+    /**
+     * @function placePiece
+     * @description update the fields of the Board by changing it's location
+     * @param {Number} column 
+     */
     placePiece(column: number) {
         if (this.fields[0][column] == 0 && column >= 0 && column < this.gameState.colCount) {
             // Bottom to top
@@ -44,6 +56,15 @@ export class Board {
         }
     }
 
+    /**
+     * @function scorePosition
+     * @description it's the utility function for the main Utility Function to calculate the score for specific position [row, col] 
+     * @param {Number} row 
+     * @param {Number} column 
+     * @param {Number} delta_y 
+     * @param {Number} delta_x
+     * @returns {Number} 
+     */
     scorePosition(row, column, delta_y, delta_x): number {
         var human_points = 0;
         var computer_points = 0;
@@ -61,46 +82,42 @@ export class Board {
         }
 
         if (human_points == 4) {
-            // Computer won (100000)
             return -this.gameState.score;
         } else if (computer_points == 4) {
-            // Human won (-100000)
             return this.gameState.score;
         } else {
-            // Return normal points
             return computer_points;
         }
 
     }
 
 
-    score() {
+    /**
+     * @function score()
+     * @description Consider as the Utility Function to calculate the score of the Board
+     * @returns {Number}
+     */
+    score(): number {
         var points = 0;
 
         var vertical_points = 0;
         var horizontal_points = 0;
-        var diagonal_points1 = 0;
-        var diagonal_points2 = 0;
+        var diagonal_points_left_bottom = 0;
+        var diagonal_points_right_bottom = 0;
 
-        // Board-size: 7x6 (height x width)
-        // Array indices begin with 0
-        // => e.g. height: 0, 1, 2, 3, 4, 5
 
         // Vertical points
-        // Check each column for vertical score
-        // 
-        // Possible situations
+        // Example :
         //  0  1  2  3  4  5  6
-        // [x][ ][ ][ ][ ][ ][ ] 0
-        // [x][x][ ][ ][ ][ ][ ] 1
-        // [x][x][x][ ][ ][ ][ ] 2
-        // [x][x][x][ ][ ][ ][ ] 3
-        // [ ][x][x][ ][ ][ ][ ] 4
-        // [ ][ ][x][ ][ ][ ][ ] 5
+        //                      0
+        //                      1
+        //  x                   2
+        //  x                   3
+        //  x                   4
+        //  x                   5
+        // So we have to subtract (3) from the height (rows)
         for (var row = 0; row < this.gameState.rowCount - 3; row++) {
-            // Für jede Column überprüfen
             for (var column = 0; column < this.gameState.colCount; column++) {
-                // Die Column bewerten und zu den Punkten hinzufügen
                 var score = this.scorePosition(row, column, 1, 0);
                 if (score == this.gameState.score) return this.gameState.score;
                 if (score == -this.gameState.score) return -this.gameState.score;
@@ -113,12 +130,14 @@ export class Board {
         // 
         // Possible situations
         //  0  1  2  3  4  5  6
-        // [x][x][x][x][ ][ ][ ] 0
-        // [ ][x][x][x][x][ ][ ] 1
-        // [ ][ ][x][x][x][x][ ] 2
-        // [ ][ ][ ][x][x][x][x] 3
-        // [ ][ ][ ][ ][ ][ ][ ] 4
-        // [ ][ ][ ][ ][ ][ ][ ] 5
+        //                      0
+        //                      1
+        //                      2
+        //                      3
+        //                      4
+        //  x  x  x  x          5
+        // So we have to subtract (3) from the width (cols)
+
         for (var row = 0; row < this.gameState.rowCount; row++) {
             for (var column = 0; column < this.gameState.colCount - 3; column++) {
                 var score = this.scorePosition(row, column, 0, 1);
@@ -130,50 +149,57 @@ export class Board {
 
 
 
-        // Diagonal points 1 (left-bottom)
+        // Diagonal points Left Bottom
         //
         // Possible situation
         //  0  1  2  3  4  5  6
-        // [x][ ][ ][ ][ ][ ][ ] 0
-        // [ ][x][ ][ ][ ][ ][ ] 1
-        // [ ][ ][x][ ][ ][ ][ ] 2
-        // [ ][ ][ ][x][ ][ ][ ] 3
-        // [ ][ ][ ][ ][ ][ ][ ] 4
-        // [ ][ ][ ][ ][ ][ ][ ] 5
+        //  x                   0
+        //     x                1
+        //        x             2
+        //           x          3
+        //                      4
+        //                      5
+        // we have to subtract 3 from height (rows)
         for (var row = 0; row < this.gameState.rowCount - 3; row++) {
             for (var column = 0; column < this.gameState.colCount - 3; column++) {
                 var score = this.scorePosition(row, column, 1, 1);
                 if (score == this.gameState.score) return this.gameState.score;
                 if (score == -this.gameState.score) return -this.gameState.score;
-                diagonal_points1 += score;
+                diagonal_points_left_bottom += score;
             }
         }
 
-        // Diagonal points 2 (right-bottom)
+        // Diagonal points 2 Right Bottom
         //
         // Possible situation
         //  0  1  2  3  4  5  6
-        // [ ][ ][ ][x][ ][ ][ ] 0
-        // [ ][ ][x][ ][ ][ ][ ] 1
-        // [ ][x][ ][ ][ ][ ][ ] 2
-        // [x][ ][ ][ ][ ][ ][ ] 3
-        // [ ][ ][ ][ ][ ][ ][ ] 4
-        // [ ][ ][ ][ ][ ][ ][ ] 5
+        //                      0
+        //                      1
+        //           x          2
+        //        x             3
+        //     x                4
+        //  x                   5
         for (var row = 3; row < this.gameState.rowCount; row++) {
             for (var column = 0; column <= this.gameState.colCount - 4; column++) {
                 var score = this.scorePosition(row, column, -1, +1);
                 if (score == this.gameState.score) return this.gameState.score;
                 if (score == -this.gameState.score) return -this.gameState.score;
-                diagonal_points2 += score;
+                diagonal_points_right_bottom += score;
             }
 
         }
-
-        points = horizontal_points + vertical_points + diagonal_points1 + diagonal_points2;
+        // Calculate All scores from all situations [Vertical, Horizontal, Diagonal_Left_Bottom, diagonal_Right_Bottom]
+        points = horizontal_points + vertical_points + diagonal_points_left_bottom + diagonal_points_right_bottom;
         return points;
     }
 
-
+    /**
+     * @function isFinished(depth, score)
+     * @description checks if the Board is finished so I sholud stop recursion
+     * @param {Number} depth 
+     * @param {Number} score
+     * @returns {Boolean} 
+     */
     isFinished(depth, score) {
         if (depth == 0 || score == this.gameState.score || score == -this.gameState.score || this.isFull()) {
             return true;
@@ -181,6 +207,11 @@ export class Board {
         return false;
     }
 
+    /**
+     * @function isFull()
+     * @description checks if the Board is Full or not
+     * @returns {Boolean}
+     */
     isFull() {
         for (var i = 0; i < this.gameState.colCount; i++) {
             if (this.fields[0][i] === 0) {
@@ -190,7 +221,11 @@ export class Board {
         return true;
     }
 
-
+    /**
+     * @function copy()
+     * @description Make a Clone From Board [ Useful in recursive calls of new board patterns ]
+     * @return {VoidFunction}
+     */
     copy(): Board {
         var new_board = new Array();
         for (var i = 0; i < this.fields.length; i++) {
