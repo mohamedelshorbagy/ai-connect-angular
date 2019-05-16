@@ -3,6 +3,9 @@ import { RED, BLACK, key, EMPTY, OVER, min, max, PLAY, Winner } from '../../help
 import { Board, IGame } from '../../board.class';
 import { Observable } from 'rxjs'
 import { delay } from 'rxjs/operators'
+
+
+
 @Component({
   selector: 'board-container',
   templateUrl: './board-container.component.html',
@@ -37,8 +40,12 @@ export class BoardContainerComponent implements OnInit {
 
   }
 
-
-  enableAItoPlaywithHimSelf() {
+  /**
+   * @function enableAItoPlaywithItSelf
+   * @description enable AI to Play with itself
+   * @returns {VoidFunction}
+   */
+  enableAItoPlaywithItSelf() {
     this.reset();
     this.delayTime = 500;
     this.disableClick = true;
@@ -47,7 +54,11 @@ export class BoardContainerComponent implements OnInit {
     // this.aIMoveOnBoard(this.delayTime);
   }
 
-
+  /**
+   * @function aIMoveOnBoard
+   * @description util wrapper for aiPlays() function
+   * @param {Number=100} delayTime 
+   */
   aIMoveOnBoard(delayTime = 100) {
     let nextMoveDelayed$ = this.aiPlays(delayTime);
     this.isLocked = true;
@@ -60,13 +71,22 @@ export class BoardContainerComponent implements OnInit {
   }
 
 
+  /**
+   * @function evaluatePlayerState
+   * @description get the state of the player so I can set the right value in board [1,2]
+   * @returns {VoidFunction}
+   */
   evaluatePlayerState() {
     this.playerState = this.playerColor === BLACK ? Winner.player1 : Winner.player2;
   }
 
 
 
-
+  /**
+   * @function createBoard
+   * @description create Board based on the [Board] Class and populate it with internal variable
+   * @returns {VoidFunction}
+   */
   createBoard() {
     let board = new Array(this.rowCount);
     for (let i = 0; i < board.length; i++) {
@@ -83,12 +103,21 @@ export class BoardContainerComponent implements OnInit {
     this.board = new Board(board, this.playerState, gameState);
 
   }
-
+  /**
+   * @function updateBoard
+   * @description Update Board with checked circle
+   * @param {Number} param.col 
+   */
   updateBoard({ col }) {
     this.board.placePiece(col);
     console.log('Board: ', this.board.fields);
   }
 
+  /**
+   * @function toggleColor
+   * @description toggle playing in the game and also responsible for AI Playing
+   * @returns {VoidFunction}
+   */
   toggleColor() {
     if (!this.winner) {
       if (this.playerColor === RED) {
@@ -103,7 +132,12 @@ export class BoardContainerComponent implements OnInit {
     }
   }
 
-
+  /**
+   * @function aiPlays
+   * @description detect move for AI and delay it by amount of time
+   * @param {Number=100} time 
+   * @returns {Observable}
+   */
   aiPlays(time = 100) {
     /**
      * Finite State
@@ -114,9 +148,9 @@ export class BoardContainerComponent implements OnInit {
      */
     let boardScore = this.board.score();
     if (boardScore != this.score && boardScore != -this.score && !this.board.isFull()) {
-      // let nextMove: [number | any, number] = (<any>this.maximizePlay(this.board, this.depth));
+      // let nextMove: [number | any, number] = (<any>this.maximize(this.board, this.depth));
       let nextMove$ = new Observable((observer) => {
-        let nextMove: [number | any, number] = (<any>this.maximizePlay(this.board, this.depth));
+        let nextMove: [number | any, number] = (<any>this.maximize(this.board, this.depth));
         observer.next(nextMove);
         observer.complete();
       });
@@ -127,6 +161,14 @@ export class BoardContainerComponent implements OnInit {
     }
   }
 
+
+  /**
+   * @function setChecker
+   * @description set row,col for checkers object and update board and also make a new checkers Object so I can trigger OnPush detection
+   * @param {Number} param.row 
+   * @param {Number} param.col 
+   * @param {Object=} attrs 
+   */
   setChecker({ row, col }, attrs = {}) {
     const checker = this.getChecker({ row, col });
     let checkers = Object.assign({}, this.checkers); // Make a new Copy
@@ -137,7 +179,12 @@ export class BoardContainerComponent implements OnInit {
   }
 
 
-
+  /**
+   * @function drop
+   * @description fill the circle with specified color and add it to checkers object
+   * @param {Number} param.row 
+   * @param {Number} param.col
+   */
   drop({ col, row }) {
     if (this.isLocked) return;
 
@@ -154,16 +201,30 @@ export class BoardContainerComponent implements OnInit {
   }
 
 
-
+  /**
+   * @function getChecker
+   * @description get checked circle based on row and key
+   * @param {Number} param.row
+   * @param {Number} param.col 
+   */
   public getChecker({ row, col }) {
     return this.checkers[key({ row, col })] || { row, col, color: 'empty' };
   }
 
+  /**
+   * @function checkForDraw
+   * @returns {Boolean}
+   */
   checkForDraw() {
     this.isDraw = Object.keys(this.checkers).length === this.rowCount * this.colCount;
     return this.isDraw;
   }
-
+  /**
+   * @function getWinner
+   * @description return fasle if winner is not exist or the winner object if exist
+   * @param {Array} segment
+   * @returns {Boolean | Object} 
+   */
   getWinner(...segment) {
     if (segment.length !== 4) return false;
     const checkers = segment.map(([row, col]) => this.getChecker({ row, col }));
@@ -172,7 +233,15 @@ export class BoardContainerComponent implements OnInit {
     if (checkers.every(c => c.color === color)) return { color, checkers };
     return false;
   }
-
+  /**
+   * @function checkHorizontalSegments
+   * @description check for winning based in horizontal case
+   * @param {Number} focalRow
+   * @param {Number} focalCol  
+   * @param {Number} minRow
+   * @param {Number} minCol
+   * @returns {Array | Object}  
+   */
   checkHorizontalSegments({ focalRow, minCol, maxCol }) {
     for (let row = focalRow, col = minCol; col <= maxCol; col++) {
       const winner = this.getWinner([row, col], [row, col + 1], [row, col + 2], [row, col + 3]);
@@ -180,13 +249,33 @@ export class BoardContainerComponent implements OnInit {
     }
   }
 
-  checkVerticalSegments({ focalRow, focalCol, minRow, maxRow }) {
+  /**
+   * @function checkVerticalSegments
+   * @description check for winning based in vertical case
+   * @param {Number} focalRow
+   * @param {Number} focalCol  
+   * @param {Number} minRow
+   * @param {Number} minCol
+   * @returns {Array | Object}  
+   */
+
+  checkVerticalSegments({ focalRow, focalCol, minRow }) {
     for (let col = focalCol, row = minRow; row <= focalRow; row++) {
       const winner = this.getWinner([row, col], [row + 1, col], [row + 2, col], [row + 3, col]);
       if (winner) return winner;
     }
   }
-
+  /**
+   * @function checkForwardSlashSegments
+   * @description check for winning based in first diagonal case
+   * @param {Number} param.focalRow
+   * @param {Number} param.focalCol  
+   * @param {Number} param.minRow
+   * @param {Number} param.minCol
+   * @param {Number} param.maxRow
+   * @param {Number} param.maxCol
+   * @returns {Array | Object}  
+   */
   checkForwardSlashSegments({ focalRow, focalCol, minRow, minCol, maxRow, maxCol }) {
     const startForwardSlash = (row, col) => {
       while (row > minRow && col > minCol) { row--; col--; }
@@ -197,7 +286,17 @@ export class BoardContainerComponent implements OnInit {
       if (winner) return winner;
     }
   }
-
+  /**
+   * @function checkBackwardSlashSegments
+   * @description check for winning based in second diagonal case
+   * @param {Number} param.focalRow
+   * @param {Number} param.focalCol  
+   * @param {Number} param.minRow
+   * @param {Number} param.minCol
+   * @param {Number} param.maxRow
+   * @param {Number} param.maxCol
+   * @returns {Array | Object}  
+   */
   checkBackwardSlashSegments({ focalRow, focalCol, minRow, minCol, maxRow, maxCol }) {
     const startBackwardSlash = (row, col) => {
       while (row < maxRow && col > minCol) { row++; col--; }
@@ -208,7 +307,11 @@ export class BoardContainerComponent implements OnInit {
       if (winner) return winner;
     }
   }
-
+  /**
+   * @function checkForWinFrom
+   * @description check for winning state for all situations [vert., horiz., both diagonals]
+   * @param lastChecker 
+   */
   checkForWinFrom(lastChecker) {
     if (!lastChecker) return;
     const { row: focalRow, col: focalCol } = lastChecker;
@@ -234,10 +337,21 @@ export class BoardContainerComponent implements OnInit {
     }
   }
 
+  /**
+   * @function displayDraw
+   * @description set status to OVER if the game is finished
+   * @returns {VoidFunction}
+   */
   displayDraw() {
     this.status = OVER;
   }
 
+  /**
+   * @function displayWin
+   * @description util function for setting values for win so I can visualize it in the UI
+   * @param {Object} winner 
+   * @returns {VoidFunction}
+   */
   displayWin(winner) {
     this.winner = winner;
     this.status = OVER;
@@ -246,7 +360,11 @@ export class BoardContainerComponent implements OnInit {
     });
     console.log('Win!', winner);
   }
-
+  /**
+   * @function reset
+   * @description Reset all active variables to defaults so you can start playing again
+   * @returns {VoidFunction}
+   */
   reset() {
     this.winner = undefined;
     this.isLocked = false;
@@ -278,8 +396,16 @@ export class BoardContainerComponent implements OnInit {
 
 
 
-
-  maximizePlay(board: Board, depth, alpha = undefined, beta = undefined) {
+  /**
+   * @function maximize
+   * @description when Max player is playing; so maxplayer will look at his possible moves and return the one with max score
+   * @param {Board} board 
+   * @param {Number} depth 
+   * @param {Number=} alpha 
+   * @param {Number=} beta 
+   * @returns {Array} [column, score]
+   */
+  maximize(board: Board, depth, alpha?: number, beta?: number) {
     // Call score of our board
     let score = board.score();
 
@@ -287,15 +413,16 @@ export class BoardContainerComponent implements OnInit {
 
     // Column, Score
     var max = [undefined, -99999];
-    // For all possible moves
+    // we generate states based on current state by looking for every 
+    // possible move maxplayer can play
     for (var column = 0; column < this.colCount; column++) {
-      var new_board = board.copy(); // Create new board
+      var new_board = board.copy(); // Clone new Board from exisiting Board
 
       let placement = new_board.placePiece(column);
       if (placement) {
         this.iterations++;
 
-        var next_move = this.minimizePlay(new_board, depth - 1, alpha, beta); // Recursive calling
+        var next_move = this.minimize(new_board, depth - 1, alpha, beta); // recursive calls
 
         // Evaluate new move
         if (max[0] === undefined || next_move[1] > max[1]) {
@@ -310,8 +437,16 @@ export class BoardContainerComponent implements OnInit {
 
     return max;
   }
-
-  minimizePlay(board: Board, depth: number, alpha?: number, beta?: number) {
+  /**
+   * @function minimize
+   * @description when Min player is playing; so minplayer will look at his possible moves and return the one with min score
+   * @param {Board} board 
+   * @param {Number} depth 
+   * @param {Number=} alpha 
+   * @param {Number=} beta
+   * @returns {Array} [column, score]
+   */
+  minimize(board: Board, depth: number, alpha?: number, beta?: number) {
     let score = board.score();
     if (board.isFinished(depth, score)) {
       return [undefined, score]
@@ -319,13 +454,15 @@ export class BoardContainerComponent implements OnInit {
 
     // Column, score
     var min = [undefined, 99999];
+    // we generate states based on current state by looking for every 
+    // possible move minplayer can play
 
     for (var column = 0; column < this.colCount; column++) {
-      var new_board: Board = board.copy();
+      var new_board: Board = board.copy(); // Clone new Board from exisiting Board
       let placement = new_board.placePiece(column);
       if (placement) {
-        this.iterations++;
-        var next_move = this.maximizePlay(new_board, depth - 1, alpha, beta);
+        this.iterations++; // inc. iterations
+        var next_move = this.maximize(new_board, depth - 1, alpha, beta); // recurisve calls
 
         if (min[0] === undefined || next_move[1] < min[1]) {
           min[0] = column;
